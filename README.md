@@ -255,7 +255,7 @@ The honest conclusion is narrower than the original thesis and better supported:
 ## Repository contents
 
 ```
-analisi.ipynb                      Full analysis notebook
+portfolio_analysis.ipynb           Full analysis notebook
 correlation_matrix.png             Asset correlation heatmap
 cumulative_returns.png             Portfolio growth curves
 cumulative_returns_annotated.png   Growth curves with event markers
