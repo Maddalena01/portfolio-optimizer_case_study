@@ -214,6 +214,38 @@ This also validates the original choice after the fact: 7% delivered Sharpe 1.33
 
 ---
 
+## Factor model: is this skill, or priced risk?
+
+The Sharpe ratios above answer *how much* better B and C perform. They do not answer *why*. A portfolio can beat a baseline for two very different reasons: genuine, uncorrelated skill (alpha), or simply carrying more exposure to known, already-cheap risk factors — in which case the "outperformance" is not skill at all, it is a factor tilt that could be bought directly via a low-cost ETF.
+
+**Method.** Each portfolio's daily excess return (portfolio return minus the risk-free rate) is regressed on the Fama-French three-factor set — market (Mkt-RF), size (SMB), value (HML) — using OLS, with data from Kenneth French's Data Library.
+
+| | A — Baseline | B — Rare Earth | C — Crypto |
+|---|---|---|---|
+| **Alpha (daily)** | 0.0002 (p=0.164) | 0.0003 (p=0.130) | 0.0003 (p=0.083) |
+| **Market beta** | 0.634 (p<0.001) | 0.685 (p<0.001) | 0.658 (p<0.001) |
+| **Size (SMB)** | −0.052 (p=0.004) | **0.088 (p<0.001)** | 0.040 (p=0.081) |
+| **Value (HML)** | −0.006 (n.s.) | **0.251 (p<0.001)** | **0.229 (p<0.001)** |
+| **R²** | 0.670 | 0.566 | 0.574 |
+
+**None of the three shows statistically significant alpha at the conventional 5% threshold.** C comes closest (p=0.083), a detail worth noting rather than overselling.
+
+**HML is where the real story is, and it undercuts the geopolitical framing.** B and C carry almost identical, strongly significant value exposure. Since both share the same core holdings aside from the bold bet, this loading traces back to the shared energy tilt (XLE) — not to either MP or BTC-USD. A meaningful share of B's and C's outperformance over A is a value factor available cheaply through any value ETF, unrelated to the geopolitical thesis.
+
+![Partial value exposure](factor_exposure_hml_partial.png)
+
+*Note on method: this is a partial regression plot — portfolio returns and HML are both first stripped of what market and size explain, then plotted against each other. A naive single-factor scatter of returns against HML alone was tried first and showed a misleading pattern (a steep negative slope for A), caused by the correlation between HML and Mkt-RF in this sample confounding the simple regression. The partial plot corrects for this and matches the multivariate coefficients above.*
+
+**SMB separates the two bold bets in an informative way.** B's size exposure is significant (0.088, p<0.001) — expected, since MP is a genuine small-cap stock. C's is not (p=0.081): Bitcoin sits outside the equity universe SMB is built from, so it does not mechanically load on it. Same aggregate correlation to SPY (noted earlier), a measurably different factor fingerprint.
+
+**R² is lower for both tilted portfolios (~0.57) than for the baseline (0.67).** Idiosyncratic risk from a single stock or a different asset class is, unsurprisingly, less well captured by equity-market factors.
+
+**Robustness check.** Given the non-normality already noted in this project's return series (see Tail risk), standard errors were re-estimated with a HAC (Newey-West, 5-lag) covariance matrix. All p-values above remain materially unchanged.
+
+**Conclusion of this section.** The factor model does not support "hidden skill" as the explanation for B's and C's higher Sharpe ratios. Most of it is explainable, priced exposure to value (via the shared energy tilt) and, for B, size (via MP). Neither bold bet shows statistically robust alpha of its own. The value of the geopolitical tilt lies in the convex, event-specific behaviour documented earlier — not in returns unexplained by known market factors.
+
+---
+
 ## Conclusion
 
 A small, deliberate allocation to a high-volatility, thematically-exposed asset improved return, Sharpe ratio and maximum drawdown relative to a diversified baseline — and the result held out-of-sample with weights estimated on a prior period.
@@ -221,6 +253,14 @@ A small, deliberate allocation to a high-volatility, thematically-exposed asset 
 But the mechanism is not what the framing suggests. Event-by-event analysis shows this is **not classic hedge protection**: the tilted portfolio suffered deeper drawdowns in three of four event windows, contributed disproportionate risk relative to its capital share, and offered no advantage during the 2022 macro shock, when all three portfolios converged. In one of the two geopolitical events tested, it underperformed outright.
 
 The honest conclusion is narrower than the original thesis and better supported: **the bold bet works as a convex position, not as insurance** — and the question is not whether to include a volatile concentrated asset, but how much, with the sensitivity analysis locating that answer near 5%.
+
+A small, deliberate allocation to a high-volatility, thematically-exposed asset improved return, Sharpe ratio and maximum drawdown relative to a diversified baseline — and the result held out-of-sample with weights estimated on a prior period.
+
+But the mechanism is not what the framing suggests. Event-by-event analysis shows this is **not classic hedge protection**: the tilted portfolio suffered deeper drawdowns in three of four event windows, contributed disproportionate risk relative to its capital share, and offered no advantage during the 2022 macro shock, when all three portfolios converged. In one of the two geopolitical events tested, it underperformed outright.
+
+**The factor model narrows the claim further.** Much of B's and C's outperformance over A is explainable by exposure to the value factor (HML) — inherited from the shared energy tilt, not from either bold bet — and, for B, to size. Neither MP nor BTC-USD shows statistically robust alpha of its own. Part of what looked like a payoff from a specific, deliberate bet is, on closer inspection, a well-known and cheaply-replicable risk exposure.
+
+The honest conclusion is narrower than the original thesis and better supported on two separate fronts: **the bold bet works as a convex position, not as insurance, and a meaningful share of the apparent "edge" is priced risk rather than skill.** The question is not whether to include a volatile concentrated asset, but how much — with the sensitivity analysis locating that answer near 5% — and how much of the resulting return is actually attributable to the bet itself, versus factors already available elsewhere.
 
 ---
 
@@ -251,6 +291,8 @@ The honest conclusion is narrower than the original thesis and better supported:
 - `yfinance` — market data retrieval
 - `scipy.optimize` (SLSQP) — constrained portfolio optimisation
 - `matplotlib` — visualisation
+- `statsmodels` — factor regression (OLS, HAC standard errors)
+- `pandas_datareader` — Fama-French factor data retrieval
 
 ## Repository contents
 
@@ -261,6 +303,8 @@ cumulative_returns.png             Portfolio growth curves
 cumulative_returns_annotated.png   Growth curves with event markers
 efficient_frontier.png             Monte Carlo frontier with portfolios overlaid
 bold_bet_sensitivity.png           CAGR, Sharpe and drawdown vs bold-bet weight
+src/factors.py                     Fama-French data download and factor regression functions
+requirements.txt                   Pinned dependency versions
 ```
 
 ---
