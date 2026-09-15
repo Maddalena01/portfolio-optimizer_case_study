@@ -14,3 +14,12 @@ def get_fama_french_factors(start=None, end=None):
     )
     factors = raw[0] / 100
     return factors
+
+def align_returns_with_factors(portfolio_returns, factors):
+    """
+    Align a portfolio's daily returns with the Fama-French factors
+    on matching dates, and compute the excess return (return - RF).
+    """
+    combined = factors.join(portfolio_returns.rename("portfolio"), how="inner")
+    combined["portfolio_excess"] = combined["portfolio"] - combined["RF"]
+    return combined
