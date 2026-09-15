@@ -23,3 +23,19 @@ def align_returns_with_factors(portfolio_returns, factors):
     combined = factors.join(portfolio_returns.rename("portfolio"), how="inner")
     combined["portfolio_excess"] = combined["portfolio"] - combined["RF"]
     return combined
+
+import statsmodels.api as sm
+
+
+def run_factor_regression(reg_data, factor_columns=("Mkt-RF", "SMB", "HML")):
+    """
+    Regress a portfolio's excess return on the Fama-French factors.
+
+    Returns the fitted statsmodels OLS results object, which exposes
+    .params (alpha and betas), .pvalues, .rsquared, and .summary().
+    """
+    X = reg_data[list(factor_columns)]
+    X = sm.add_constant(X)
+    y = reg_data["portfolio_excess"]
+    model = sm.OLS(y, X).fit()
+    return model
